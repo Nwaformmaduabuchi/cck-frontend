@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Poppins, Roboto } from "next/font/google";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { GoogleOAuthProvider } from "@react-oauth/google";
+// import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import { AppSidebar } from "@/app/components/AppSideBar"
 import { Toaster } from "@/components/ui/sonner";
@@ -48,7 +48,7 @@ export default async function OverviewLayout({
 
 
   return (
-    <GoogleOAuthProvider clientId={process.env.NEXT_GOOGLE_CLIENT_ID!}>
+    // <GoogleOAuthProvider clientId={process.env.NEXT_GOOGLE_CLIENT_ID!}>
       <SidebarProvider className="flex w-full">
         <AppSidebar />
         <SidebarInset className="flex h-screen flex-col overflow-hidden">
@@ -67,6 +67,6 @@ export default async function OverviewLayout({
           position="bottom-center" 
         />
       </SidebarProvider>
-    </GoogleOAuthProvider>
+    // </GoogleOAuthProvider>
   );
 }

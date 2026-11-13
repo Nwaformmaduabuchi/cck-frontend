@@ -2,12 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Poppins, Roboto } from "next/font/google";
 import "./globals.css";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { GoogleOAuthProvider } from "@react-oauth/google";
+// import { GoogleOAuthProvider } from "@react-oauth/google";
 
-import { AppSidebar } from "@/app/components/AppSideBar"
-import { ChevronLeft, Menu } from "lucide-react";
-import { MySidebarTrigger } from "./components/MySideBarTriger";
 
 
 export const metadata = {
@@ -43,12 +39,12 @@ export default async function RootLayout({
       <html lang="en" 
             className={`${roboto.variable} ${poppins.variable} font-sans antialiased`}>
       <body>
-        <GoogleOAuthProvider clientId={process.env.NEXT_GOOGLE_CLIENT_ID!}>
+        {/* <GoogleOAuthProvider clientId={process.env.NEXT_GOOGLE_CLIENT_ID!}> */}
             <main className="flex-1 w-full overflow-x-hidden transition-all duration-300 ease-in-out">
               {children}      
             </main>
          
-      </GoogleOAuthProvider>
+      {/* </GoogleOAuthProvider> */}
       </body>
     </html>
     
