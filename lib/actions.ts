@@ -98,7 +98,7 @@ export async function del_variant_action(id: string) {
       return data;
     }
     
-    revalidatePath("/overview/pendingsale");
+    revalidatePath("/overview/stock");
     return { success: true, message: "Item deleted successfully" };
   } catch {
     return { success: false, status: 500, error: ['Connection error!'] };

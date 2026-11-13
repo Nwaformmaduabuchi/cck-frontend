@@ -3,8 +3,15 @@ import { twMerge } from "tailwind-merge"
 import { VariantList } from "./types";
 
 
-export const API_BASE_URL =
-  process.env.NEXT_API_BASE_URL || "http://localhost:8000";
+const configuredApiBaseUrl =
+  process.env.NEXT_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
+
+export const API_BASE_URL = (
+  configuredApiBaseUrl ||
+  (process.env.NODE_ENV === "production"
+    ? "https://cck-backend-4vvv.onrender.com"
+    : "http://localhost:8000")
+).replace(/\/+$/, "");
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }

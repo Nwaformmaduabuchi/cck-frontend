@@ -102,7 +102,7 @@ function InventoryCard({ variant }: { variant: VariantList }) {
         {/* Action Modals - Edit & Delete */}
         <div className="flex shrink-0 items-center gap-2">
           <EditModal variant={variant} />
-          <DelModal />
+          <DelModal variantId={variant.id} />
         </div>
       </div>
     </article>
@@ -255,7 +255,7 @@ export default async function ProductLists({ products }: { products: ProductList
                           <td className="py-4 px-4 text-right">
                             <span className="inline-flex items-center gap-2 cursor-pointer">
                               <EditModal variant={variant}  />
-                              <DelModal />
+                              <DelModal variantId={variant.id} />
                             </span>
                           </td>
                         </tr>
