@@ -210,6 +210,7 @@ export interface SalesType {
   success:boolean;
   error:string[];
   data:SaleOrder[];
+  status?: number;
 }
 
 export interface Movement {

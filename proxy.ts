@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { API_BASE_URL } from "./lib/utils";
-import { user_logout_action } from "./lib/actions";
 
 function isTokenExpired(token: string) {
   try {
@@ -25,8 +24,10 @@ export async function proxy(request: NextRequest) {
   const refresh = request.cookies.get("refresh")?.value;
 
   if (!refresh || isTokenExpired(refresh)) {
-   await user_logout_action()
-    return NextResponse.redirect(new URL('/auth/login', request.url));
+    const response = NextResponse.redirect(new URL("/auth/login", request.url));
+    response.cookies.delete("access");
+    response.cookies.delete("refresh");
+    return response;
   }
 
   
@@ -90,6 +91,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|auth/login|$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|auth/login|auth/register|$).*)",
   ],
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { type SubmitEvent, useMemo, useState, useTransition } from "react";
+import { type FormEvent, useMemo, useState, useTransition } from "react";
 import { Plus, ReceiptText, Save, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createSale } from "@/lib/actions";
@@ -18,15 +18,11 @@ import {
 } from "./ui-patterns";
 import { toast } from "sonner";
 import { StatusToast } from "./CustomerToasts";
-import { routerServerGlobal } from "next/dist/server/lib/router-utils/router-server-context";
 import { useRouter } from "next/navigation";
 
 function normalize(value?: string | null) {
   return value?.trim().toLowerCase() ?? "";
 }
-
-const unique: ServerPayload[] = [];
-const mySet = new Set();
 
 export default function SaleForm({ variants }: { variants: VariantList[] }) {
   const [isPending, startTransition] = useTransition();
@@ -48,8 +44,6 @@ export default function SaleForm({ variants }: { variants: VariantList[] }) {
     status: false,
     message: "",
   });
-  let isSubmiting = true;
-
   const summary = useMemo(() => {
     return sale_items.reduce(
       (acc, item) => ({
@@ -60,12 +54,8 @@ export default function SaleForm({ variants }: { variants: VariantList[] }) {
     );
   }, [sale_items]);
 
-  const unique: ServerPayload[] = [];
-  const mySet = new Set();
-
-  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  console.log("submit function entered")
     if (!customer_name.trim()) {
       toast.error("Customer name is required.");
       return;
@@ -108,42 +98,25 @@ export default function SaleForm({ variants }: { variants: VariantList[] }) {
       });
     }
 
-    for (const x of matched) {
-      console.log(matched);
-      if (mySet.has(x.variant_id)) {
-        isSubmiting = false;
-        setExist((prev) => ({
-          ...prev,
-          status: true,
-          message: "Duplicate item or items detected!",
-        }));
-        toast.error("Duplicate item or items detected!");
-        break;
-      } else {
-        mySet.add(x.variant_id);
-        unique.push(x);
-        isSubmiting = true;
-        setExist((prev) => ({
-          ...prev,
-          status: false,
-          message: "",
-        }));
-      }
+    const hasDuplicateVariants =
+      new Set(matched.map((item) => item.variant_id)).size !== matched.length;
+    if (hasDuplicateVariants) {
+      setExist({ status: true, message: "Duplicate item or items detected!" });
+      toast.error("Duplicate item or items detected!");
+      return;
     }
+    setExist({ status: false, message: "" });
 
     const salePayload: SalePayload = {
       customer_name: customer_name.trim(),
       customer_phone: customer_phone.trim() || undefined,
       customer_address: customer_address.trim() || undefined,
       seller: seller.trim() || undefined,
-      sale_items: unique,
+      sale_items: matched,
     };
-
-    if (!isSubmiting) return;
 
     startTransition(async () => {
       try {
-        console.log("submit payload", salePayload)
         const data = await createSale(salePayload);
         if (data.success) {
       toast.custom((t) => (
@@ -154,7 +127,8 @@ export default function SaleForm({ variants }: { variants: VariantList[] }) {
           message={data.message} 
         />
       ));
-      router.refresh()
+          resetSale();
+          router.refresh();
     } else {
 
       toast.custom((t) => (
@@ -166,7 +140,6 @@ export default function SaleForm({ variants }: { variants: VariantList[] }) {
         />
       ));
     }
-        resetSale();
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : "Something went wrong.";
         toast.error(message);
@@ -233,14 +206,9 @@ export default function SaleForm({ variants }: { variants: VariantList[] }) {
       <form
         id="sale_form"
         className="bg-card rounded-sm px-2 sm:px-4 lg:px-6 py-4"
-        onSubmit={(event) => {
-          if (!exist.status) {
-            handleSubmit(event);
-          } else {
-            event.preventDefault();
-          }
-        }}
+        onSubmit={handleSubmit}
       >
+        {exist.status && <p role="alert" className="mb-3 text-sm text-destructive">{exist.message}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-3 justify-center gap-2 sm:gap-4">
           <div className="sm:col-span-2 pb-4">
             <Surface className="mb-4">

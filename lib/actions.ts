@@ -222,13 +222,12 @@ export const user_login_action = async (data: LoginFormValues) => {
   // Set Cookies and redirect outside try/catch
   const cookie = await cookies();
   const isProd = process.env.NODE_ENV === "production";
-  const path = res_data.has_company ? "/overview" : "/";
 
   cookie.set("access", res_data['access'], {
-    httpOnly: true, secure: isProd, sameSite: "lax", path, maxAge: 60 * 60 * 5 
+    httpOnly: true, secure: isProd, sameSite: "lax", path: "/", maxAge: 60 * 60 * 5
   });
   cookie.set("refresh", res_data['refresh'], {
-    httpOnly: true, secure: isProd, sameSite: "lax", path: res_data.has_company ? "/" : "/overview", maxAge: 60 * 60 * 24 * 7,
+    httpOnly: true, secure: isProd, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 7,
   });
 
   if (res_data.has_company) {
@@ -289,7 +288,7 @@ export const user_logout_action = async () => {
 
 type ReceiptDownloadResult =
   | { success: true; filename: string; contentType: string; data: string; message: string; }
-  | any;
+  | { success: false; status: number; error: unknown; };
 
 export async function get_receipt(id: string | number, uuid: string): Promise<ReceiptDownloadResult> {
   const cookie = await cookies();
@@ -306,7 +305,12 @@ export async function get_receipt(id: string | number, uuid: string): Promise<Re
     });
 
     if (!res.ok) {
-      return await res.json();
+      const errorBody = await res.json() as { error?: unknown; detail?: unknown };
+      return {
+        success: false,
+        status: res.status,
+        error: errorBody.error ?? errorBody.detail ?? "Receipt request failed.",
+      };
     }
 
     const contentType = res.headers.get("content-type") ?? "";

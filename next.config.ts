@@ -1,18 +1,20 @@
 /** @type {import('next').NextConfig} */
 
-const withPWA = require("@ducanh2912/next-pwa").default({
+import withPWAInit from "@ducanh2912/next-pwa";
+import type { NextConfig } from "next";
+
+const withPWA = withPWAInit({
   dest: "public",
   cacheOnFrontEndNav: true,
   aggressiveFrontEndNavCaching: true,
   reloadOnOnline: true,
-  swcMinify: true,
   disable: process.env.NODE_ENV === "development", // Disable in dev to prevent caching issues
   workboxOptions: {
     disableDevLogs: true,
   },
 });
 
-const nextConfig = {
+const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
@@ -34,4 +36,4 @@ const nextConfig = {
   turbopack: {},
 };
 
-module.exports = withPWA(nextConfig);
+export default withPWA(nextConfig);

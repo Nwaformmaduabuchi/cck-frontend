@@ -60,7 +60,7 @@ export const fetchPayments = async (id: string) => {
   }
 }
 
-export const fetchSales = async (status: string): Promise<SalesType | any> => {
+export const fetchSales = async (status: string): Promise<SalesType> => {
   const cookie = await cookies();
   const access = cookie.get('access')?.value;
   const url = `${API_BASE_URL}/list/sale/?${status}`;
@@ -74,12 +74,28 @@ export const fetchSales = async (status: string): Promise<SalesType | any> => {
       }
     });
      
-    const res_data = await res.json();
-    if (!res.ok) return res_data;
+    const payload: unknown = await res.json();
+    if (!res.ok) {
+      const errorPayload =
+        payload && typeof payload === "object" && "error" in payload
+          ? payload.error
+          : payload;
+      const errors = Array.isArray(errorPayload)
+        ? errorPayload.map(String)
+        : typeof errorPayload === "string"
+          ? [errorPayload]
+          : ["Failed to fetch sales."];
+      return { success: false, status: res.status, error: errors, data: [] };
+    }
 
-    return { success: true, error: [], data: res_data };
+    return { success: true, error: [], data: payload as SalesType["data"] };
   } catch {
-    return { success: false, status: 500, error: ["Connection error while fetching sales."] };
+    return {
+      success: false,
+      status: 500,
+      error: ["Connection error while fetching sales."],
+      data: [],
+    };
   }
 };
 
@@ -88,7 +104,7 @@ export const Fetchhistory = async () => {
   const access = cookie.get('access')?.value;
 
   try {
-    const res = await fetch(`${API_BASE_URL}/list/history`, {
+    const res = await fetch(`${API_BASE_URL}/list/history/`, {
       headers: {
         "Content-Type": "application/json",
         cookie: `access=${access}`

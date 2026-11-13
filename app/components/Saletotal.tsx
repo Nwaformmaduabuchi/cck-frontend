@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { Check, Edit2Icon, X} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
@@ -20,18 +20,15 @@ export default function EditableOrderTotal({
   orderId: string | number;
 }) {
   const router = useRouter();
-  const [paidAmount, setPaidAmount] = useState(Number(initialAmount ?? 0));
-  const [draftAmount, setDraftAmount] = useState(String(Number(paidAmount)));
+  const currentAmount = Number(initialAmount ?? 0);
+  const [selectedAmount, setSelectedAmount] = useState<{ source: number; amount: number } | null>(null);
+  const amountToPay = selectedAmount?.source === currentAmount ? selectedAmount.amount : currentAmount;
+  const [draftAmount, setDraftAmount] = useState(String(currentAmount));
   const [isEditing, setIsEditing] = useState(false);
   
   
   const [uuid] = useState<string>(crypto.randomUUID());
   const inputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    const numVal = Number(initialAmount ?? 0);
-    setPaidAmount(numVal);
-    setDraftAmount(String(numVal));
-  }, [initialAmount]);
 
   const handlePayment = async (payload: { id: string | number, amount: number, method?: PaymentMethods }) => {
     try {
@@ -68,13 +65,13 @@ export default function EditableOrderTotal({
   };
 
   const startEditing = () => {
-    setDraftAmount(String(paidAmount));
+    setDraftAmount(String(amountToPay));
     setIsEditing(true);
     window.setTimeout(() => inputRef.current?.focus(), 0);
   };
 
   const confirmPayment = () => {
-    setPaidAmount(Number(draftAmount || 0));
+    setSelectedAmount({ source: currentAmount, amount: Number(draftAmount || 0) });
     setIsEditing(false);
   };
 
@@ -143,17 +140,17 @@ export default function EditableOrderTotal({
         <div className="flex flex-col gap-3 pt-1">
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-              {paidAmount < 0 ? "Refund amount:": "Payable amount:"}
+              {amountToPay < 0 ? "Refund amount:": "Payable amount:"}
             </span>
             <span className="font-mono text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-              {formatCurrency(Math.abs(paidAmount))}
+              {formatCurrency(Math.abs(amountToPay))}
             </span>
           </div>
 
-            {Number(paidAmount) < 0 ? <Button className="text-white sm:px-1.5 px-3 font-semibold rounded-sm ml-2 text-center transition-all duration-200 delay-50 w-full bg-rose-400 hover:text-white hover:bg-rose-500 cursor-pointer" onClick={()=> handlePayment({id:orderId, amount:paidAmount, })}>Refund</Button> : (<div className="w-full pt-1">
+            {Number(amountToPay) < 0 ? <Button className="text-white sm:px-1.5 px-3 font-semibold rounded-sm ml-2 text-center transition-all duration-200 delay-50 w-full bg-rose-400 hover:text-white hover:bg-rose-500 cursor-pointer" onClick={()=> handlePayment({id:orderId, amount:amountToPay, })}>Refund</Button> : (<div className="w-full pt-1">
             <DialogBox 
               id={orderId} 
-              amount={paidAmount} 
+              amount={amountToPay}
               onPay={handlePayment} 
             />
           </div>)}

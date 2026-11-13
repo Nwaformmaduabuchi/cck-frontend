@@ -13,27 +13,26 @@ const ReceiptDownloadButton = ({sale_id}:{sale_id:string}) => {
 
         try {
             const res = await get_receipt(sale_id, crypto.randomUUID());
-            if (res.success) {
-             toast.custom((t) => (
-               <StatusToast
-                 t={t} 
-                 status="success" 
-                 title="Variant Updated" 
-                 message={res.message} 
-               />
-             ));
-           } else {
-             
-             toast.custom((t) => (
-               <StatusToast 
-                 t={t} 
-                 status="error" 
-                 title="Failed to download receipt" 
-                 errorPayload={res.error} 
-               />
-             ));
-           }
-           
+            if (!res.success) {
+              toast.custom((t) => (
+                <StatusToast
+                  t={t}
+                  status="error"
+                  title="Failed to download receipt"
+                  errorPayload={res.error}
+                />
+              ));
+              return;
+            }
+
+            toast.custom((t) => (
+              <StatusToast
+                t={t}
+                status="success"
+                title="Receipt ready"
+                message={res.message}
+              />
+            ));
 
             const bytes = Uint8Array.from(atob(res.data), (char) => char.charCodeAt(0));
             const blobData = new Blob([bytes], { type: res.contentType });

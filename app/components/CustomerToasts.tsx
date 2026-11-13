@@ -2,10 +2,7 @@ import { toast } from "sonner";
 import { 
   CheckCircle2, 
   XCircle, 
-  X, 
-  CreditCard, 
-  ReceiptText, 
-  Wallet
+  X,
 } from "lucide-react";
 
 interface RegularToastProps {
@@ -13,7 +10,19 @@ interface RegularToastProps {
   status: "success" | "error";
   title?: string;
   message?: string;
-  errorPayload?: any; 
+  errorPayload?: unknown;
+}
+
+function errorMessage(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (Array.isArray(value)) return value.map(errorMessage).join(", ");
+  if (value && typeof value === "object") {
+    return Object.entries(value)
+      .map(([key, message]) => `${key}: ${errorMessage(message)}`)
+      .join(", ");
+  }
+  return "An unexpected error occurred.";
 }
 
 export const StatusToast = ({ t, status, title, message, errorPayload }: RegularToastProps) => {
@@ -26,14 +35,15 @@ export const StatusToast = ({ t, status, title, message, errorPayload }: Regular
       return errorPayload.map((err, i) => <li key={i}>{err}</li>);
     }
     
-    if (typeof errorPayload === "object") {
-      if (errorPayload.detail) {
-        return <li>{errorPayload.detail}</li>;
+    if (typeof errorPayload === "object" && errorPayload !== null) {
+      const errors = errorPayload as Record<string, unknown>;
+      if (errors.detail) {
+        return <li>{errorMessage(errors.detail)}</li>;
       }
-      return Object.entries(errorPayload).map(([field, msgs]: [string, any], i) => {
-        const msg = Array.isArray(msgs) ? msgs[0] : msgs;
-        if (field === "non_field_errors") return <li key={i}>{msg}</li>;
-        return <li key={i}><span className="capitalize font-semibold">{field.replace('_', ' ')}:</span> {msg}</li>;
+      return Object.entries(errors).map(([field, messages], i) => {
+        const msg = Array.isArray(messages) ? messages[0] : messages;
+        if (field === "non_field_errors") return <li key={i}>{errorMessage(msg)}</li>;
+        return <li key={i}><span className="capitalize font-semibold">{field.replace('_', ' ')}:</span> {errorMessage(msg)}</li>;
       });
     }
     
@@ -64,7 +74,7 @@ export const StatusToast = ({ t, status, title, message, errorPayload }: Regular
           <p className="mt-1 text-sm text-slate-500">{message}</p>
         )}
         
-        {errorPayload && (
+        {Boolean(errorPayload) && (
           <ul className="mt-1.5 text-sm text-slate-600 list-disc list-inside space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100">
             {renderErrors()}
           </ul>

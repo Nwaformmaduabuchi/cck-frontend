@@ -21,7 +21,7 @@ export default function LoginPage() {
         <div className="relative z-10 max-w-lg mb-12">
           <Quote className="h-10 w-10 text-indigo-400/50 mb-6" />
           <p className="text-3xl font-semibold leading-snug text-slate-100 mb-6">
-            "Switching to Store Master transformed our checkout speed and completely automated our pending payments."
+            &ldquo;Switching to Store Master transformed our checkout speed and completely automated our pending payments.&rdquo;
           </p>
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-full bg-indigo-500/20 flex items-center justify-center font-bold text-indigo-200 border border-indigo-500/30">

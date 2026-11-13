@@ -148,7 +148,7 @@ export function SignupForm({
                   />
 
                   <FieldDescription>
-                    We'll use this to contact you.
+                    We&apos;ll use this to contact you.
                   </FieldDescription>
 
                   {fieldState.invalid && (

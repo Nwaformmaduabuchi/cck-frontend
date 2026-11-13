@@ -363,7 +363,7 @@ color:"red"
                       ))}
                     </div>
                     <p className="text-slate-700 dark:text-slate-300 italic mb-6">
-                      "{review.quote}"
+                      &ldquo;{review.quote}&rdquo;
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
