@@ -285,7 +285,7 @@ export default async function CompletedSalesPage({sales}: {sales: SaleOrder[]}) 
                           Order Items
                         </h3>
                         <Link 
-                          href={`/payments/${order.id}`} 
+                          href={`/overview/payments/${order.id}`} 
                           className="group flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
                         >
                           View Payments History
